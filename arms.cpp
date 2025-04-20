@@ -4,8 +4,6 @@
 // 创建舵机对象
 Servo servoLeft;
 Servo servoRight;
-// 定义单向门控制引脚
-const int servoPin = 6;
 int leftDegreeNow = 90;//当前角度
 int leftTargetdegree = 90;//目标角度
 void armUp(){
@@ -15,27 +13,22 @@ void armDown(){
     leftTargetdegree = 180;
 }
 void armLoop(){
-    // while (degreeNow < targetdegree) {
-    //     degreeNow++;
-    //     servoLeft.write(degreeNow);
-    //     delay(10);
-    //   }
-    //   while (degreeNow > targetdegree) {
-    //     degreeNow--;
-    //     servoLeft.write(degreeNow);
-    //     delay(10);
-    //   }
     while (leftDegreeNow < leftTargetdegree) {
         leftDegreeNow++;
         servoLeft.write(leftDegreeNow);
+        // 注意两个舵机的转向相反
         servoRight.write(180-leftDegreeNow);
         delay(10);
+        Serial.print("leftDegreeNow:");
+        Serial.println(leftDegreeNow);
     }
     while (leftDegreeNow > leftTargetdegree) {
         leftDegreeNow--;
         servoLeft.write(leftDegreeNow);
         servoRight.write(180-leftDegreeNow);
         delay(10);
+        Serial.print("leftDegreeNow:");
+        Serial.println(leftDegreeNow);
     }
 }
 void armSetup() {

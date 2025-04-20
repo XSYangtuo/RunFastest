@@ -1,6 +1,7 @@
 # ifndef PINS_H
 # define PINS_H
 
-# define PIN_armleft 6
-# define PIN_armright 7
-# endif
+extern int PIN_armleft;
+extern int PIN_armright;
+extern int PIN_buttons[];
+# endif // PINS_H
