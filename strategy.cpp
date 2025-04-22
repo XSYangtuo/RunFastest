@@ -2,6 +2,18 @@
 #include "communication.h"
 #include "arms.h"
 #include "wheel.h"
+#include "strategy.h"
+#define ST 0 //直行一格
+#define LF 1//左转
+#define RT 2//右转
+#define ARM_DOWN 3//放下
+#define ARM_UP 4//抬起
+#define END -1//结束
+int strategyGroup[1][100]{
+    {ST,ST,LF,ST,ST,LF,ST,ST,LF,ST,ST,END}
+};
+int nowStrategy = -1;
+int nowStrategyIndex = 0;
 
 int straight(int basicSpeed){
     int* sensorStatus = getSensor();
@@ -14,8 +26,12 @@ int straight(int basicSpeed){
         }
     }
     if(sums == 21){//全白
+        setWheel(basicSpeed, basicSpeed);
+        while(getSensor()[0] == 0 && nowStrategy != -1)
+            delay(10);
         stopWheel();
-        return 0;
+        delay(1000);
+        return 1;
     }
     sums/=times;
     if(sums < 3){
@@ -25,5 +41,61 @@ int straight(int basicSpeed){
     }else{
         setWheel(basicSpeed, basicSpeed);
     }
-    return 1;
+    return 0;
+}
+int turn(int basicSpeed, int direction){//1向左2向右
+    if(direction == 2){
+        setWheel(basicSpeed, 0);
+        delay(600);
+        stopWheel();
+    }else{
+        setWheel(0, basicSpeed);
+        delay(600);
+        stopWheel();
+    }
+}
+
+void setStrategy(int id){
+    nowStrategy = id;
+    nowStrategyIndex = 0;
+}
+void strategyLoop(){
+    if(nowStrategy == -1){
+        return;
+    }
+    switch (strategyGroup[nowStrategy][nowStrategyIndex])
+    {
+    case END:
+        nowStrategy = -1;
+        return;
+        break;
+    case ST:
+        if(straight(70)){
+            // Serial.println("!!!");
+            nowStrategyIndex++;
+        }
+        break;
+    case LF:
+        turn(100, 1);
+        nowStrategyIndex++;
+        break;
+    case RT:
+        turn(100, 2);
+        nowStrategyIndex++;
+        break;
+    case ARM_DOWN:
+        armDown();
+        nowStrategyIndex++;
+        break;
+    case ARM_UP:
+        armUp();
+        nowStrategyIndex++;
+        break;
+    default:
+        break;
+    }
+}
+void stopAllStrategy(){
+    nowStrategy = -1;
+    stopWheel();
 }

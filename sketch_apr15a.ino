@@ -2,7 +2,6 @@
 #include "arms.h" 
 #include "wheel.h"
 #include "strategy.h"
-int straghting = 0;
 void setup() {
   Serial.begin(9600);
   communicationSetup();
@@ -13,9 +12,7 @@ void loop() {
   //Serial.println("loop");
   armLoop();
   communicationLoop();
-  if(straghting == 1){
-    straight(70);
-  }
+  strategyLoop();
   if(Serial.available()>0){
     char serialGet = Serial.read();
     if(serialGet=='1'){
@@ -52,15 +49,16 @@ void loop() {
   }
   if(getButtonOnce(0)){
     Serial.println("button1 once");
-    straghting = 1;
   }
   if(getButtonOnce(1)){
     Serial.println("button2 once");
+    stopAllStrategy();
     stopWheel();
-    straghting = 0;
   }
   if(getButtonOnce(2)){
     Serial.println("button3 once");
+    // setWheel(70,70);
+    setStrategy(0);
   }
 }
 // 定义引脚
