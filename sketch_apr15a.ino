@@ -22,8 +22,14 @@ void loop() {
       armDown();
     }
     if(serialGet=='3'){
-      setWheel(100,-100);
-      delay(5000);
+      setWheel(70,0);
+      delay(1000);
+      setWheel(-70,0);
+      delay(1000);
+      setWheel(0,70);
+      delay(1000);
+      setWheel(0,-70);
+      delay(1000);
       stopWheel();
     }
     if(serialGet=='4'){
@@ -36,7 +42,9 @@ void loop() {
       Serial.print(sensorStatus[5]);
       Serial.println(sensorStatus[6]);
     }
-
+    if(serialGet == '5'){
+      Serial.println(getWaveDistance());
+    }
   }
   if(getButton(0)){
     Serial.println("button1");
@@ -57,7 +65,8 @@ void loop() {
   }
   if(getButtonOnce(2)){
     Serial.println("button3 once");
-    // setWheel(70,70);
+     //setWheel(-70,70);
+    
     setStrategy(0);
   }
 }
