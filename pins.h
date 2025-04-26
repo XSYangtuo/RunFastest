@@ -14,6 +14,11 @@
 #define L298N_IN4 44
 #define L298N_ENA 8
 #define L298N_ENB 9
+//车轮的编码器
+#define PIN_encoderla  3
+#define PIN_encoderlb  4
+#define PIN_encoderra 1
+#define PIN_encoderrb 2
 // 灰度传感器
 #define PIN_gray1  39
 #define PIN_gray2  41

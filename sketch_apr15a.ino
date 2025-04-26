@@ -56,6 +56,7 @@ void loop() {
     Serial.println("button3");
   }
   if(getButtonOnce(0)){
+    setStrategy(1);
     Serial.println("button1 once");
   }
   if(getButtonOnce(1)){
@@ -70,64 +71,83 @@ void loop() {
     setStrategy(0);
   }
 }
-// 定义引脚
-// const int sclkPin = 30;  // SCLK 时钟引脚
-// const int rclkPin = 28;  // RCLK 锁存时钟引脚
-// const int d10Pin = 26;  // D10 数据引脚（这里假定功能，可按需调整）
+// #include "wheel.h"
+// #include "pins.h"
+// // 编码器脉冲计数
+// volatile long encoderLeftCount = 0;
+// volatile long encoderRightCount = 0;
 
-// // 数码管段码表，对应0 - 9数字显示（共阴极）
-// byte digitCodes[] = {
-//   B00111111, // 0
-//   B00000110, // 1
-//   B01011011, // 2
-//   B01001111, // 3
-//   B01100110, // 4
-//   B01101101, // 5
-//   B01111101, // 6
-//   B00000111, // 7
-//   B01111111, // 8
-//   B01101111  // 9
-// };
+// // 上次测速时间
+// unsigned long lastTime = 0;
+// // 测速间隔（毫秒）
+// const unsigned long interval = 100;
 
-// void setup() {
-//   Serial.begin(9600);
-//   pinMode(sclkPin, OUTPUT);
-//   pinMode(rclkPin, OUTPUT);
-//   pinMode(d10Pin, OUTPUT);
+// // 编码器每转脉冲数
+// const int pulsesPerRevolution = 11;  // 根据实际情况调整
+
+// // 轮子周长（厘米）
+// const float wheelCircumference = 20.0;  // 根据实际情况调整
+
+// // 左编码器 A 相中断服务函数
+// void leftEncoderAISR() {
+//   if (digitalRead(PIN_encoderla) == digitalRead(PIN_encoderlb)) {
+//     encoderLeftCount++;
+//   } else {
+//     encoderLeftCount--;
+//   }
 // }
 
-// // 函数：在指定数码管位置显示数字
-// void displayDigit(int digitPos, int digit) {
-//   digitalWrite(rclkPin, LOW);
-//   // 这里简单模拟数据发送，实际需按通信协议调整
-//   // 假设 D10 引脚用于发送位选信号
-//   digitalWrite(d10Pin, (0x01 << digitPos)); 
-//   // 发送段码，显示对应数字
-//   for (int i = 0; i < 8; i++) {
-//     digitalWrite(sclkPin, LOW);
-//     if (digitCodes[digit] & (1 << i)) {
-//       digitalWrite(d10Pin, HIGH);
-//     } else {
-//       digitalWrite(d10Pin, LOW);
-//     }
-//     delay(10);
-//     digitalWrite(sclkPin, HIGH);
+// // 右编码器 A 相中断服务函数
+// void rightEncoderAISR() {
+//   if (digitalRead(PIN_encoderra) == digitalRead(PIN_encoderrb)) {
+//     encoderRightCount++;
+//   } else {
+//     encoderRightCount--;
 //   }
-//   digitalWrite(rclkPin, HIGH);
+// }
+
+// void setup() {
+//   // 初始化串口通信
+//   Serial.begin(9600);
+
+//   // 设置编码器引脚为输入模式
+//   pinMode(PIN_encoderla, INPUT_PULLUP);
+//   pinMode(PIN_encoderlb, INPUT_PULLUP);
+//   pinMode(PIN_encoderra, INPUT_PULLUP);
+//   pinMode(PIN_encoderrb, INPUT_PULLUP);
+
+//   // 附加中断服务函数
+//   attachInterrupt(digitalPinToInterrupt(PIN_encoderla), leftEncoderAISR, CHANGE);
+//   attachInterrupt(digitalPinToInterrupt(PIN_encoderra), rightEncoderAISR, CHANGE);
+
+//   // 记录开始时间
+//   lastTime = millis();
 // }
 
 // void loop() {
-//   // 在第0位数码管显示0
-//   Serial.println("loop");
-//   displayDigit(0, 0); 
-//   delay(1000);
-//   // 在第1位数码管显示1
-//   displayDigit(1, 1); 
-//   delay(1000);
-//   // 在第2位数码管显示2
-//   displayDigit(2, 2); 
-//   delay(1000);
-//   // 在第3位数码管显示3
-//   displayDigit(3, 3); 
-//   delay(1000);
-// }
+//   // setWheel(100,100);
+//   unsigned long currentTime = millis();
+//   if (currentTime - lastTime >= interval) {
+//     // 保存当前脉冲计数
+//     long leftCount = encoderLeftCount;
+//     long rightCount = encoderRightCount;
+//     Serial.print("Left Count: ");
+//     Serial.println(leftCount);
+//     // 重置脉冲计数
+//     encoderLeftCount = 0;
+//     encoderRightCount = 0;
+//     // 计算速度（厘米/秒）
+//     float leftSpeed = (leftCount / (float)pulsesPerRevolution) * wheelCircumference / (interval / 1000.0);
+//     float rightSpeed = (rightCount / (float)pulsesPerRevolution) * wheelCircumference / (interval / 1000.0);
+
+//     // 输出速度到串口
+//     Serial.print("Left Speed: ");
+//     Serial.print(leftSpeed);
+//     Serial.print(" cm/s, Right Speed: ");
+//     Serial.print(rightSpeed);
+//     Serial.println(" cm/s");
+
+//     // 更新上次测速时间
+//     lastTime = currentTime;
+//   }
+// }    
